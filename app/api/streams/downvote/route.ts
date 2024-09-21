@@ -1,14 +1,16 @@
 import { upvoteClient, userClient } from "@/app/lib/db";
+import { authOptions } from "@/app/lib/utill";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+
 const upvoteSchema = z.object({
-  sreamId: z.string(),
+  streamId: z.string(),
 });
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   // Todo : Replace this with id everywhere
 
@@ -29,13 +31,28 @@ export async function POST(req: NextRequest) {
   }
   try {
     const data = upvoteSchema.parse(await req.json());
+    const upvote = await upvoteClient.findFirst({
+      where: {
+        userId: user.id,
+        streamId: data.streamId,
+      },
+    });
+
+    if (!upvote) {
+      return NextResponse.json({
+        message: "Can not be downvote again",
+      });
+    }
     await upvoteClient.delete({
       where: {
         userId_streamId: {
           userId: user.id,
-          streamId: data.sreamId,
+          streamId: data.streamId,
         },
       },
+    });
+    return NextResponse.json({
+      message: "success",
     });
   } catch (e) {
     return NextResponse.json(
@@ -48,4 +65,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-  

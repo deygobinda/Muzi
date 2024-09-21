@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { streamClient } from "@/app/lib/db";
+import { streamClient, userClient } from "@/app/lib/db";
 import axios from "axios";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/lib/utill";
+
 const YT_API_KEY = process.env.YT_API_KEY;
 
 const CreateStreamSchema = z.object({
-  creatorId: z.string(),
   url: z.string(),
 });
 
@@ -15,6 +17,8 @@ const YT_REGEX =
 export async function POST(req: NextRequest) {
   try {
     const data = CreateStreamSchema.parse(await req.json());
+    const session = await getServerSession(authOptions)
+    console.log(data)
     const match = data.url.match(YT_REGEX);
     const extractedID = match ? match[1] : null;
     if (!extractedID) {
@@ -30,10 +34,25 @@ export async function POST(req: NextRequest) {
     const yt_data = await axios.get(
       `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${extractedID}&key=${YT_API_KEY}`
     );
+    const user = await userClient.findFirst({
+      where: {
+        email: session?.user?.email ?? "",
+      },
+    });
+    if (!user) {
+      return NextResponse.json(
+        {
+          message: "Unauthenticated",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
     const title = yt_data.data.items[0].snippet.title;
     const sreams = await streamClient.create({
       data: {
-        userId: data.creatorId,
+        userId: user.id,
         url: data.url,
         extractedID,
         smallImg: `https://img.youtube.com/vi/${extractedID}/mqdefault.jpg`,

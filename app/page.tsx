@@ -1,4 +1,4 @@
-import Appbar from "@/components/Appbar"
+import Redirect from "@/components/Redirect"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {Music, Radio, User } from "lucide-react"
@@ -7,7 +7,7 @@ import Link from "next/link"
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
-      <Appbar/>
+     <Redirect/>
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-gray-900 to-gray-800">
           <div className="container px-4 md:px-6">
@@ -83,7 +83,7 @@ export default function LandingPage() {
         </section>
       </main>
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t border-gray-800">
-        <p className="text-xs text-gray-400">© 2023 MusicStream Inc. All rights reserved.</p>
+        <p className="text-xs text-gray-400">© 2024 Muzi Inc. All rights reserved.</p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <Link className="text-xs hover:underline underline-offset-4 text-gray-400 hover:text-purple-400" href="#">
             Terms of Service
